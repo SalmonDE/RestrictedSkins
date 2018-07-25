@@ -1,0 +1,5 @@
+name: RestrictedSkins
+author: SalmonDE
+version: 1.0.0
+main: SalmonDE\RestrictedSkins\Main
+api: [3.0.0]
