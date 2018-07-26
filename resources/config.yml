@@ -4,3 +4,6 @@ disable-custom-geometry: true
 disable-transparent-skins: true
 allowed-transparency: 70
 # the recommended lowest value this might be is 62
+# due to the fact that most parts of a skin are invisible
+# and never shown in-game without custom geometry anyway
+# 62% is what an alex skin would return
