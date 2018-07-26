@@ -32,15 +32,15 @@ class Main extends PluginBase implements Listener {
     }
 
     public function getStrippedSkin(Skin $skin): Skin{
-        $skinData = ($noCustomSkins = $this->getConfig()->get('disable-custom-skins') === true) ? \str_repeat("\0xFF", 2048) : $skin->getSkinData();
+        $skinData = ($noCustomSkins = $this->getConfig()->get('disable-custom-skins') === \true) ? \str_repeat("\0xFF", 2048) : $skin->getSkinData();
 
-        if(!$noCustomSkins && $this->getConfig()->get('disable-transparent-skins') === true && $this->getSkinTransparencyPercentage($skinData) > $this->getConfig()->get('allowed-transparency')){
+        if(!$noCustomSkins && $this->getConfig()->get('disable-transparent-skins') === \true && $this->getSkinTransparencyPercentage($skinData) > $this->getConfig()->get('allowed-transparency')){
             $skinData = \str_repeat("\0xFF", 2048);
         }
 
-        $capeData = $this->getConfig()->get('disable-custom-capes') === true ? '' : $skin->getCapeData();
-        $geometryName = $this->getConfig()->get('disable-custom-geometry') === true ? '' : $skin->getGeometryName();
-        $geometryData = $this->getConfig()->get('disable-custom-geometry') === true ? '' : $skin->getGeometryData();
+        $capeData = $this->getConfig()->get('disable-custom-capes') === \true ? '' : $skin->getCapeData();
+        $geometryName = $this->getConfig()->get('disable-custom-geometry') === \true ? '' : $skin->getGeometryName();
+        $geometryData = $this->getConfig()->get('disable-custom-geometry') === \true ? '' : $skin->getGeometryData();
 
         return new Skin($skin->getSkinId(), $skinData, $capeData, $geometryName, $geometryData);
     }
@@ -77,11 +77,11 @@ class Main extends PluginBase implements Listener {
 
                 $a = 127 - (int) \floor($stream->getByte() / 2);
                 if($a > 0){
-                    $transparentPixels++;
+                    ++$transparentPixels;
                 }
             }
         }
 
-        return (int) round($transparentPixels * 100 / ($maxX * $maxY));
+        return (int) \round($transparentPixels * 100 / ($maxX * $maxY));
     }
 }
