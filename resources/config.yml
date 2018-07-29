@@ -1,6 +1,7 @@
 disable-custom-skins: false
 disable-custom-capes: true
 disable-custom-geometry: true
+disable-ingame-skin-change: true
 disable-transparent-skins: true
 allowed-transparency: 70
 # the recommended lowest value this might be is 62
