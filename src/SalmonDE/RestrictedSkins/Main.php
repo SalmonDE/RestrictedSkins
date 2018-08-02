@@ -104,7 +104,7 @@ class Main extends PluginBase implements Listener {
         $transparentPixels = 0;
 
         foreach($bounds as $bound){
-            if($bound['max']['x'] > $maxX ||$bound['max']['y'] > $maxY){
+            if($bound['max']['x'] > $maxX || $bound['max']['y'] > $maxY){
                 continue;
             }
 
