@@ -8,11 +8,15 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChangeSkinEvent;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\plugin\PluginBase;
-use pocketmine\utils\BinaryStream;
 
 class Main extends PluginBase implements Listener {
 
+    public const SKIN_64_64 = 0;
+    public const SKIN_64_32 = self::SKIN_64_64;
+    public const SKIN_128_128 = 1;
+
     private $fallbackSkinData;
+    private $skinBounds = [];
 
     public function onEnable(): void{
         $this->saveResource('config.yml');
@@ -26,6 +30,10 @@ class Main extends PluginBase implements Listener {
         }
 
         $this->fallbackSkinData = $fallbackSkin->getSkinData();
+
+        $cubes = $this->getCubes(json_decode(stream_get_contents($this->getResource('humanoid.json')), true)['geometry.humanoid']);
+        $this->skinBounds[self::SKIN_64_64] = $this->getSkinBounds($cubes);
+        $this->skinBounds[self::SKIN_128_128] = $this->getSkinBounds($cubes, 2.0);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
@@ -55,7 +63,7 @@ class Main extends PluginBase implements Listener {
     public function getStrippedSkin(Skin $skin): Skin{
         $skinData = ($noCustomSkins = $this->getConfig()->get('disable-custom-skins') === \true) ? $this->fallbackSkinData : $skin->getSkinData();
 
-        if(!$noCustomSkins && $this->getConfig()->get('disable-transparent-skins') === \true && $this->getSkinTransparencyPercentage($skinData) > $this->getConfig()->get('allowed-transparency')){
+        if(!$noCustomSkins && $this->getConfig()->get('disable-transparent-skins') === \true && $this->getSkinTransparencyPercentage($skinData) > $this->getConfig()->get('allowed-transparency-percentage')){
             $skinData = $this->fallbackSkinData;
         }
 
@@ -66,39 +74,48 @@ class Main extends PluginBase implements Listener {
         return new Skin($skin->getSkinId(), $skinData, $capeData, $geometryName, $geometryData);
     }
 
-    public static function getSkinTransparencyPercentage(string $skinData): int{
+    public function getSkinTransparencyPercentage(string $skinData): int{
         switch(\strlen($skinData)){
             case 8192:
                 $maxX = 64;
                 $maxY = 32;
+
+                $bounds = $this->skinBounds[self::SKIN_64_32];
                 break;
 
             case 16384:
                 $maxX = 64;
                 $maxY = 64;
+
+                $bounds = $this->skinBounds[self::SKIN_64_64];
                 break;
 
             case 65536:
                 $maxX = 128;
                 $maxY = 128;
+
+                $bounds = $this->skinBounds[self::SKIN_128_128];
                 break;
 
             default:
                 throw new InvalidArgumentException('Inappropriate skin data length: '.\strlen($skinData));
         }
 
-        $stream = new BinaryStream($skinData);
         $transparentPixels = 0;
 
-        for($y = 0; $y < $maxY; ++$y){
-            for($x = 0; $x < $maxX; ++$x){
-                $stream->getByte();
-                $stream->getByte();
-                $stream->getByte();
+        foreach($bounds as $bound){
+            if($bound['max']['x'] > $maxX ||$bound['max']['y'] > $maxY){
+                continue;
+            }
 
-                $a = 127 - (int) \floor($stream->getByte() / 2);
-                if($a > 0){
-                    ++$transparentPixels;
+            for($y = $bound['min']['y']; $y <= $bound['max']['y']; $y++){
+                for($x = $bound['min']['x']; $x <= $bound['max']['x']; $x++){
+                    $key = (($maxX * $y) + $x) * 4;
+                    $a = \ord($skinData[$key + 3]);
+
+                    if($a < 127){
+                        ++$transparentPixels;
+                    }
                 }
             }
         }
@@ -109,7 +126,7 @@ class Main extends PluginBase implements Listener {
     public static function getSkinDataFromPNG(string $path) : string{
         $img = \imagecreatefrompng($path);
         [$k, $l] = \getimagesize($path);
-        $bytes = "";
+        $bytes = '';
 
         for ($y = 0; $y < $l; ++$y) {
             for ($x = 0; $x < $k; ++$x) {
@@ -120,5 +137,47 @@ class Main extends PluginBase implements Listener {
 
         \imagedestroy($img);
         return $bytes;
+    }
+
+    public function getCubes(array $geometryData): array{
+        $cubes = [];
+        foreach($geometryData['bones'] as $bone){
+            if(!isset($bone['cubes'])){
+                continue;
+            }
+
+            if($bone['mirror'] ?? false){
+                throw new InvalidArgumentException('Unsupported geometry data');
+            }
+
+            foreach($bone['cubes'] as $cubeData){
+                $cube = [];
+                $cube['x'] = $cubeData['size'][0];
+                $cube['y'] = $cubeData['size'][1];
+                $cube['z'] = $cubeData['size'][2];
+                $cube['uvX'] = $cubeData['uv'][0];
+                $cube['uvY'] = $cubeData['uv'][1];
+
+                $cubes[] = $cube;
+            }
+        }
+
+        return $cubes;
+    }
+
+    public function getSkinBounds(array $cubes, float $scale = 1.0): array{
+        $bounds = [];
+        foreach($cubes as $cube){
+            $x = (int) ($scale * $cube['x']);
+            $y = (int) ($scale * $cube['y']);
+            $z = (int) ($scale * $cube['z']);
+            $uvX = (int) ($scale * $cube['uvX']);
+            $uvY = (int) ($scale * $cube['uvY']);
+
+            $bounds[] = ['min' => ['x' => $uvX + $z, 'y' => $uvY], 'max' => ['x' => $uvX + $z + (2 * $x), 'y' => $uvY + $z - 1]];
+            $bounds[] = ['min' => ['x' => $uvX, 'y' => $uvY + $z], 'max' => ['x' => $uvX + (2 * ($z + $x)), 'y' => $uvY + $z + $y - 1]];
+        }
+
+        return $bounds;
     }
 }
