@@ -11,9 +11,9 @@ use pocketmine\plugin\PluginBase;
 
 class Main extends PluginBase implements Listener {
 
-    public const SKIN_64_64 = 0;
-    public const SKIN_64_32 = self::SKIN_64_64;
-    public const SKIN_128_128 = 1;
+    public const BOUNDS_64_64 = 0;
+    public const BOUNDS_64_32 = self::BOUNDS_64_64;
+    public const BOUNDS_128_128 = 1;
 
     private $fallbackSkinData;
     private $skinBounds = [];
@@ -32,8 +32,8 @@ class Main extends PluginBase implements Listener {
         $this->fallbackSkinData = $fallbackSkin->getSkinData();
 
         $cubes = $this->getCubes(json_decode(stream_get_contents($this->getResource('humanoid.json')), true)['geometry.humanoid']);
-        $this->skinBounds[self::SKIN_64_64] = $this->getSkinBounds($cubes);
-        $this->skinBounds[self::SKIN_128_128] = $this->getSkinBounds($cubes, 2.0);
+        $this->skinBounds[self::BOUNDS_64_64] = $this->getSkinBounds($cubes);
+        $this->skinBounds[self::BOUNDS_128_128] = $this->getSkinBounds($cubes, 2.0);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
@@ -80,21 +80,21 @@ class Main extends PluginBase implements Listener {
                 $maxX = 64;
                 $maxY = 32;
 
-                $bounds = $this->skinBounds[self::SKIN_64_32];
+                $bounds = $this->skinBounds[self::BOUNDS_64_32];
                 break;
 
             case 16384:
                 $maxX = 64;
                 $maxY = 64;
 
-                $bounds = $this->skinBounds[self::SKIN_64_64];
+                $bounds = $this->skinBounds[self::BOUNDS_64_64];
                 break;
 
             case 65536:
                 $maxX = 128;
                 $maxY = 128;
 
-                $bounds = $this->skinBounds[self::SKIN_128_128];
+                $bounds = $this->skinBounds[self::BOUNDS_128_128];
                 break;
 
             default:
