@@ -68,7 +68,7 @@ class Main extends PluginBase implements Listener {
         }
 
         $capeData = $this->getConfig()->get('disable-custom-capes') === \true ? '' : $skin->getCapeData();
-        $geometryName = $this->getConfig()->get('disable-custom-geometry') === \true ? '' : $skin->getGeometryName();
+        $geometryName = $this->getConfig()->get('disable-custom-geometry') === \true && $skin->getGeometryName() !== 'geometry.humanoid.customSlim' ? 'geometry.humanoid.custom' : $skin->getGeometryName();
         $geometryData = $this->getConfig()->get('disable-custom-geometry') === \true ? '' : $skin->getGeometryData();
 
         return new Skin($skin->getSkinId(), $skinData, $capeData, $geometryName, $geometryData);
