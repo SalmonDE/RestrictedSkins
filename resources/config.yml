@@ -4,4 +4,5 @@ disable-custom-geometry: true
 disable-ingame-skin-change: true
 disable-transparent-skins: true
 allowed-transparency-percentage: 5
-# Recommended minimum percentage: 3
+# Recommended minimum percentage for slim skins: 2
+# Set the percentage to 0 to prohibit transparency in the base skin at all.

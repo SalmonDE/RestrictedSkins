@@ -174,8 +174,8 @@ class Main extends PluginBase implements Listener {
             $uvX = (int) ($scale * $cube['uvX']);
             $uvY = (int) ($scale * $cube['uvY']);
 
-            $bounds[] = ['min' => ['x' => $uvX + $z, 'y' => $uvY], 'max' => ['x' => $uvX + $z + (2 * $x), 'y' => $uvY + $z - 1]];
-            $bounds[] = ['min' => ['x' => $uvX, 'y' => $uvY + $z], 'max' => ['x' => $uvX + (2 * ($z + $x)), 'y' => $uvY + $z + $y - 1]];
+            $bounds[] = ['min' => ['x' => $uvX + $z, 'y' => $uvY], 'max' => ['x' => $uvX + $z + (2 * $x) - 1, 'y' => $uvY + $z - 1]];
+            $bounds[] = ['min' => ['x' => $uvX, 'y' => $uvY + $z], 'max' => ['x' => $uvX + (2 * ($z + $x)) - 1, 'y' => $uvY + $z + $y - 1]];
         }
 
         return $bounds;
