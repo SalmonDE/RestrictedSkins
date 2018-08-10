@@ -1,6 +1,6 @@
 name: RestrictedSkins
 author: SalmonDE
-version: 1.4.1
+version: 1.5.0
 main: SalmonDE\RestrictedSkins\Main
 api: [4.0.0]
 extensions: [gd]

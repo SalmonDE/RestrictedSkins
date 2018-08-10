@@ -101,7 +101,7 @@ class Main extends PluginBase implements Listener {
                 throw new InvalidArgumentException('Inappropriate skin data length: '.\strlen($skinData));
         }
 
-        $transparentPixels = 0;
+        $transparentPixels = $pixels = 0;
 
         foreach($bounds as $bound){
             if($bound['max']['x'] > $maxX || $bound['max']['y'] > $maxY){
@@ -116,11 +116,13 @@ class Main extends PluginBase implements Listener {
                     if($a < 127){
                         ++$transparentPixels;
                     }
+
+                    ++$pixels;
                 }
             }
         }
 
-        return (int) \round($transparentPixels * 100 / ($maxX * $maxY));
+        return (int) \round($transparentPixels * 100 / max(1, $pixels));
     }
 
     public static function getSkinDataFromPNG(string $path) : string{
