@@ -125,7 +125,7 @@ class Main extends PluginBase implements Listener {
         return (int) \round($transparentPixels * 100 / max(1, $pixels));
     }
 
-    public static function getSkinDataFromPNG(string $path) : string{
+    public static function getSkinDataFromPNG(string $path): string{
         $img = \imagecreatefrompng($path);
         [$k, $l] = \getimagesize($path);
         $bytes = '';
