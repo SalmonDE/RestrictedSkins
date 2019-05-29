@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace SalmonDE\RestrictedSkins;
 
+use InvalidArgumentException;
 use pocketmine\entity\Skin;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChangeSkinEvent;
@@ -22,9 +23,9 @@ class Main extends PluginBase implements Listener {
 		$this->saveResource('config.yml');
 		$this->saveResource('fallback.png');
 
-		$fallbackSkin = new Skin('fallback', self::getSkinDataFromPNG($this->getDataFolder().'fallback.png'));
-
-		if(!$fallbackSkin->isValid()){
+		try{
+			$fallbackSkin = new Skin('fallback', self::getSkinDataFromPNG($this->getDataFolder().'fallback.png'));
+		}catch(InvalidArgumentException $e){
 			$this->getLogger()->error('Invalid skin supplied as fallback. Reverting to default one.');
 			$fallbackSkin = new Skin('fallback', self::getSkinDataFromPNG($this->getFile().'/resources/fallback.png'));
 		}
@@ -38,16 +39,10 @@ class Main extends PluginBase implements Listener {
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
 
-	/**
-	* @ignoreCancelled true
-	*/
 	public function onPlayerLogin(PlayerLoginEvent $event): void{
 		$event->getPlayer()->setSkin($this->getStrippedSkin($event->getPlayer()->getSkin()));
 	}
 
-	/**
-	* @ignoreCancelled true
-	*/
 	public function onPlayerChangeSkin(PlayerChangeSkinEvent $event): void{
 		if($this->getConfig()->get('disable-ingame-skin-change') === \true){
 			$event->setCancelled();
