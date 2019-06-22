@@ -19,7 +19,7 @@ class Main extends PluginBase implements Listener {
 	private $fallbackSkinData;
 	private $skinBounds = [];
 
-	public function onEnable(): void{
+	protected function onEnable(): void{
 		$this->saveResource('config.yml');
 		$this->saveResource('fallback.png');
 
