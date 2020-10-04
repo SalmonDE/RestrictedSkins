@@ -45,7 +45,7 @@ class Main extends PluginBase implements Listener {
 
 	public function onPlayerChangeSkin(PlayerChangeSkinEvent $event): void{
 		if($this->getConfig()->get('disable-ingame-skin-change') === \true){
-			$event->setCancelled();
+			$event->cancel();
 		}
 
 		$event->setNewSkin($this->getStrippedSkin($event->getNewSkin()));
